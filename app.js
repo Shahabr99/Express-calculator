@@ -1,24 +1,36 @@
 const express = require("express");
+const ExpressError = require("./error");
 
 const app = express();
 
-app.get("/mean", function (req, res) {
+app.get("/mean", function (req, res, next) {
   let sum = 0;
-  const nums = req.query["nums"].split(",").map((n) => Number(n));
+  const str = req.query["nums"];
+  console.log(str);
+  if (!str) throw new ExpressError("Bad Request", 404);
+  const nums = str.split(",").map((n) => Number(n));
 
-  for (let i = 0; i < nums.length; i++) {
-    sum += nums[i];
+  try {
+    for (let i = 0; i < nums.length; i++) {
+      console.log(isNaN(nums[i]));
+      if (isNaN(nums[i])) throw new ExpressError("foo is not a number", 400);
+      sum += nums[i];
+    }
+
+    mean = sum / nums.length;
+    let result = {
+      operation: "mean",
+      value: mean,
+    };
+    res.send(result);
+  } catch (e) {
+    next(e);
   }
-  mean = sum / arr.length;
-  let result = {
-    operation: "mean",
-    value: mean,
-  };
-  res.send(result);
 });
 
-app.get("/median", function (req, res) {
+app.get("/median", function (req, res, next) {
   const nums = req.query["nums"].split(",").map((n) => Number(n));
+  if (!nums) throw new ExpressError("Bad Request", 404);
   const idx = Math.trunc(nums.length / 2);
   let result = {};
   if (nums.length % 2 === 0) {
@@ -64,7 +76,21 @@ app.get("/mode", function (req, res) {
     operation: "mode",
     value: number,
   };
-  console.log(result);
+  res.send(result);
+});
+
+app.use((req, res, next) => {
+  const e = new ExpressError("Page not found", 404);
+  next(e);
+});
+
+app.use(function (err, req, res, next) {
+  let message = err.message;
+  let status = err.status || 500;
+
+  return res.status(status).json({
+    error: { message, status },
+  });
 });
 
 app.listen(3000, () => {
