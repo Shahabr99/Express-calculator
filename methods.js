@@ -37,27 +37,31 @@ function findMedian(nums) {
 function findMode(nums) {
   let number = 0;
   let obj = {};
-  let count = 0;
+  let maxCount = 0;
+
+  // counting the occurrence of each value
   for (let num of nums) {
     if (obj[num]) {
       obj[num] += 1;
     } else {
       obj[num] = 1;
     }
-    if (obj[num] > count) {
-      count = obj[num];
+  }
+
+  for (let key of Object.keys(obj)) {
+    const count = obj[key];
+
+    if (count > maxCount) {
+      maxCount = count;
+      console.log(maxCount);
     }
   }
 
-  for (let key in obj) {
-    if (obj[key] === count) {
-      number = key;
-    }
-  }
   let result = {
     operation: "mode",
-    value: number,
+    value: maxCount,
   };
+
   return result;
 }
 

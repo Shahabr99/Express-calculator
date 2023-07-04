@@ -7,7 +7,7 @@ const app = express();
 app.get("/mean", function (req, res, next) {
   const str = req.query["nums"];
   const nums = str.split(",").map((n) => Number(n));
-  if (!nums) throw new ExpressError("Bad Request", 404);
+  if (!str) throw new ExpressError("Bad Request", 404);
 
   const result = findMean(nums);
   res.send(result);
